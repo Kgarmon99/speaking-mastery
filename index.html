@@ -24,6 +24,132 @@
       --red-glow: rgba(255, 51, 51, 0.3);
       --gold: #fbbf24;
       --blue: #38bdf8;
+      --purple: #a78bfa;
+    }
+
+    /* Pitch versions */
+    .pitch-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .pitch-tabs::-webkit-scrollbar { display: none; }
+
+    .pitch-tab {
+      padding: 8px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      white-space: nowrap;
+    }
+
+    .pitch-tab:hover { color: var(--text); }
+    .pitch-tab.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+
+    .pitch-editor {
+      width: 100%;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 200px;
+      resize: vertical;
+      line-height: 1.7;
+      letter-spacing: -0.01em;
+    }
+
+    .pitch-editor:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .pitch-editor::placeholder { color: var(--text-muted); }
+
+    .pitch-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .pitch-wordcount {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pitch-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      padding: 8px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Transcription */
+    .transcript-box {
+      background: rgba(67, 255, 100, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      font-weight: 300;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .transcript-box h4 {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .transcript-box .word-tag {
+      margin: 2px;
+    }
+
+    .recording-item .transcript-toggle {
+      font-size: 11px;
+      color: var(--accent);
+      cursor: pointer;
+      margin-top: 4px;
+      font-weight: 600;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1033,6 +1159,32 @@ Example: 'We're trying to improve financial literacy and hopefully we can kind o
 
         <div id="checkerResults" style="margin-top: 20px;"></div>
       </div>
+
+      <!-- PITCHES -->
+      <div id="tab-pitches" class="tab-panel">
+        <div class="section-header">
+          <div class="section-label">Library</div>
+          <div class="section-title">Your Pitches</div>
+        </div>
+
+        <div class="pitch-tabs" id="pitchTabs"></div>
+        <textarea class="pitch-editor" id="pitchEditor" placeholder="Write your pitch here...
+
+Same core narrative, different length.
+
+30 seconds = 75 words
+2 minutes = 300 words
+5 minutes = 750 words
+15 minutes = 2,000 words"></textarea>
+        <div class="pitch-meta">
+          <span class="pitch-wordcount" id="pitchWordcount">0 words</span>
+          <div class="pitch-actions">
+            <button class="btn-secondary" onclick="analyzePitch()">Analyze</button>
+            <button class="btn-primary" onclick="savePitch()">Save</button>
+          </div>
+        </div>
+        <div id="pitchAnalysis" style="margin-top: 16px;"></div>
+      </div>
     </div>
 
     <!-- Bottom Nav -->
@@ -1048,6 +1200,10 @@ Example: 'We're trying to improve financial literacy and hopefully we can kind o
       <button class="nav-btn" data-nav="record">
         <span class="nav-icon">◐</span>
         <span>Record</span>
+      </button>
+      <button class="nav-btn" data-nav="pitches">
+        <span class="nav-icon">◆</span>
+        <span>Pitches</span>
       </button>
       <button class="nav-btn" data-nav="stories">
         <span class="nav-icon">◫</span>
@@ -1337,6 +1493,11 @@ Example: 'We're trying to improve financial literacy and hopefully we can kind o
     let lastActive = localStorage.getItem('sm_lastActive') || null;
     let drillsCompleted = parseInt(localStorage.getItem('sm_drillsCompleted') || '0');
     let skillsExplored = JSON.parse(localStorage.getItem('sm_skillsExplored') || '[]');
+    let pitches = JSON.parse(localStorage.getItem('sm_pitches') || '{"30s":"","2min":"","5min":"","15min":""}');
+    let currentPitchVersion = '30s';
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recognition = null;
 
     // ==================== INIT ====================
     function init() {
@@ -1346,7 +1507,11 @@ Example: 'We're trying to improve financial literacy and hopefully we can kind o
       renderRecordings();
       renderStories();
       renderDailyChecklist();
+      renderPitchTabs();
+      switchPitchVersion('30s');
       updateProgress();
+
+      document.getElementById('pitchEditor').addEventListener('input', updatePitchWordcount);
 
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.nav));
@@ -1475,34 +1640,142 @@ Example: 'We're trying to improve financial literacy and hopefully we can kind o
       if (drillTimeLeft <= 10) timerEl.classList.add('warning');
     }
 
+    // ==================== PITCH VERSIONS ====================
+    const pitchVersions = [
+      { id: '30s', label: '30s', desc: 'Elevator', target: 75 },
+      { id: '2min', label: '2 min', desc: 'Standard', target: 300 },
+      { id: '5min', label: '5 min', desc: 'Pitch', target: 750 },
+      { id: '15min', label: '15 min', desc: 'Keynote', target: 2000 }
+    ];
+
+    function renderPitchTabs() {
+      const container = document.getElementById('pitchTabs');
+      container.innerHTML = pitchVersions.map(v => `
+        <button class="pitch-tab ${v.id === currentPitchVersion ? 'active' : ''}" onclick="switchPitchVersion('${v.id}')">
+          ${v.label} <span style="opacity:0.5;font-weight:400">· ${v.desc}</span>
+        </button>
+      `).join('');
+    }
+
+    function switchPitchVersion(id) {
+      currentPitchVersion = id;
+      renderPitchTabs();
+      document.getElementById('pitchEditor').value = pitches[id] || '';
+      updatePitchWordcount();
+      document.getElementById('pitchAnalysis').innerHTML = '';
+    }
+
+    function updatePitchWordcount() {
+      const text = document.getElementById('pitchEditor').value;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const target = pitchVersions.find(v => v.id === currentPitchVersion).target;
+      document.getElementById('pitchWordcount').textContent = `${words} / ${target} words`;
+      document.getElementById('pitchWordcount').style.color = words > target * 1.2 ? 'var(--red)' : words > target ? 'var(--gold)' : 'var(--text-muted)';
+    }
+
+    function savePitch() {
+      pitches[currentPitchVersion] = document.getElementById('pitchEditor').value;
+      localStorage.setItem('sm_pitches', JSON.stringify(pitches));
+      const btn = event.target;
+      const original = btn.textContent;
+      btn.textContent = 'Saved!';
+      setTimeout(() => btn.textContent = original, 1000);
+    }
+
+    function analyzePitch() {
+      const text = document.getElementById('pitchEditor').value;
+      if (!text.trim()) {
+        document.getElementById('pitchAnalysis').innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Write something first.</div>';
+        return;
+      }
+      const found = Object.entries(weakWords).filter(([weak]) => text.toLowerCase().includes(weak));
+      const words = text.trim().split(/\s+/).length;
+      const target = pitchVersions.find(v => v.id === currentPitchVersion).target;
+
+      let html = `<div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">`;
+      html += `<span class="word-tag strong">${words} words</span>`;
+      html += `<span class="word-tag ${words > target ? 'weak' : 'strong'}">Target: ${target}</span>`;
+      html += `<span class="word-tag ${found.length > 0 ? 'weak' : 'strong'}">${found.length} weak words</span>`;
+      html += `</div>`;
+
+      if (found.length > 0) {
+        html += `<div style="margin-top:8px;">`;
+        found.forEach(f => {
+          html += `<span class="word-tag weak">${f[0]}</span> <span style="color:var(--text-muted)">→</span> <span class="word-tag strong">${f[1]}</span><br>`;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div style="color:var(--accent);font-size:13px;margin-top:8px;">✓ No weak language detected</div>`;
+      }
+
+      document.getElementById('pitchAnalysis').innerHTML = html;
+    }
+
+    // ==================== SPEECH RECOGNITION ====================
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return false;
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      return true;
+    }
+
     // ==================== RECORDING ====================
     const recordBtn = document.getElementById('recordBtn');
     const recordStatus = document.getElementById('recordStatus');
     const recordHint = document.getElementById('recordHint');
     const recordingTimerEl = document.getElementById('recordingTimer');
+    const hasSpeechAPI = initSpeechRecognition();
 
     recordBtn.addEventListener('click', () => {
       if (!isRecording) startRecording();
       else stopRecording();
     });
 
-    function startRecording() {
-      isRecording = true;
-      recordingStartTime = Date.now();
-      recordBtn.classList.add('recording');
-      recordBtn.textContent = '■';
-      recordStatus.textContent = 'Recording...';
-      recordHint.textContent = 'Tap to stop';
-      recordingTimerEl.style.display = 'block';
-      recordingTimer = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
-        const mins = Math.floor(elapsed / 60);
-        const secs = elapsed % 60;
-        recordingTimerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-      }, 1000);
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+        mediaRecorder.start();
+        isRecording = true;
+        recordingStartTime = Date.now();
+        recordBtn.classList.add('recording');
+        recordBtn.textContent = '■';
+        recordStatus.textContent = 'Recording...';
+        recordHint.textContent = hasSpeechAPI ? 'Tap to stop & transcribe' : 'Tap to stop';
+        recordingTimerEl.style.display = 'block';
+
+        recordingTimer = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+          const mins = Math.floor(elapsed / 60);
+          const secs = elapsed % 60;
+          recordingTimerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        }, 1000);
+
+        // Start speech recognition
+        if (hasSpeechAPI && recognition) {
+          recognition.start();
+        }
+      } catch (err) {
+        recordStatus.textContent = 'Mic access denied';
+        recordHint.textContent = 'Allow microphone access in settings';
+      }
     }
 
     function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(t => t.stop());
+      }
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+      }
+
       isRecording = false;
       const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
       clearInterval(recordingTimer);
@@ -1511,15 +1784,33 @@ Example: 'We're trying to improve financial literacy and hopefully we can kind o
       recordStatus.textContent = 'Saved!';
       recordHint.textContent = 'Tap to record another';
       recordingTimerEl.style.display = 'none';
+
       recordings.unshift({
         id: Date.now(),
         date: new Date().toLocaleString(),
         duration: elapsed,
-        name: `Recording ${recordings.length + 1}`
+        name: `Recording ${recordings.length + 1}`,
+        transcript: currentTranscript || null,
+        weakWordsFound: currentWeakWordsFound || []
       });
       localStorage.setItem('sm_recordings', JSON.stringify(recordings));
       renderRecordings();
       updateProgress();
+    }
+
+    let currentTranscript = '';
+    let currentWeakWordsFound = [];
+
+    if (hasSpeechAPI && recognition) {
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        currentTranscript = transcript;
+        // Check for weak words in real-time
+        currentWeakWordsFound = Object.entries(weakWords).filter(([weak]) => transcript.toLowerCase().includes(weak));
+      };
     }
 
     function renderRecordings() {
@@ -1531,17 +1822,30 @@ Example: 'We're trying to improve financial literacy and hopefully we can kind o
       container.innerHTML = recordings.map(rec => {
         const mins = Math.floor(rec.duration / 60);
         const secs = rec.duration % 60;
+        const hasTranscript = rec.transcript && rec.transcript.length > 0;
+        const hasWeakWords = rec.weakWordsFound && rec.weakWordsFound.length > 0;
         return `
-          <div class="recording-item">
+          <div class="recording-item" id="rec-${rec.id}">
             <button class="play-btn">▶</button>
             <div class="recording-info">
               <div class="recording-name">${rec.name}</div>
               <div class="recording-time">${rec.date} · ${mins}:${String(secs).padStart(2,'0')}</div>
+              ${hasTranscript ? `<div class="transcript-toggle" onclick="toggleTranscript(${rec.id})">View transcript ${hasWeakWords ? '· ' + rec.weakWordsFound.length + ' weak words' : '· ✓ clean'}</div>` : ''}
+              ${hasTranscript ? `<div class="transcript-box" id="transcript-${rec.id}" style="display:none;">
+                <h4>Transcript</h4>
+                <div style="margin-bottom:12px;font-style:italic;">${rec.transcript}</div>
+                ${hasWeakWords ? `<h4>Weak Words Found</h4><div>${rec.weakWordsFound.map(f => `<span class="word-tag weak">${f[0]}</span> <span style="color:var(--text-muted)">→</span> <span class="word-tag strong">${f[1]}</span>`).join('<br>')}</div>` : '<div style="color:var(--accent)">✓ No weak words detected</div>'}
+              </div>` : ''}
             </div>
             <button class="recording-delete" onclick="deleteRecording(${rec.id})">×</button>
           </div>
         `;
       }).join('');
+    }
+
+    function toggleTranscript(id) {
+      const box = document.getElementById(`transcript-${id}`);
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
     function deleteRecording(id) {
