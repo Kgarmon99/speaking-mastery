@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speaking Mastery — Founder & Speaker Training</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --mb-green: #00E676;
+      --mb-green-dark: #00C853;
+      --mb-green-soft: #69F0AE;
+      --mb-ink: #07111F;
+      --mb-ink-2: #0B1628;
+      --mb-panel: rgba(10, 24, 42, 0.86);
+      --mb-line: rgba(105, 240, 174, 0.22);
+      --mb-white: #F8FAFC;
+      --mb-muted: #AAB8C8;
+      --mb-gold: #FBBF24;
+      --mb-red: #FB7185;
+      --mb-blue: #38BDF8;
+      --mb-purple: #A78BFA;
+      --mb-radius-sm: 12px;
+      --mb-radius-md: 18px;
+      --mb-radius-lg: 28px;
+      --mb-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+      --mb-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--mb-ink);
+      color: var(--mb-white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(0, 230, 118, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(56, 189, 248, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 50% at 50% 100%, rgba(251, 191, 36, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(105, 240, 174, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(105, 240, 174, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* App shell */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      padding: 20px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--mb-line);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+      border-radius: var(--mb-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--mb-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .streak-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--mb-gold);
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 100px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--mb-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--mb-white); }
+
+    .tab-btn.active {
+      background: rgba(0, 230, 118, 0.12);
+      border-color: rgba(0, 230, 118, 0.4);
+      color: var(--mb-green);
+    }
+
+    /* Content area */
+    .content {
+      flex: 1;
+      padding: 0 16px 100px;
+      overflow-y: auto;
+    }
+
+    /* Section titles */
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 24px 0 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--mb-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* Skill cards */
+    .skill-card {
+      background: var(--mb-panel);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.25s var(--mb-spring);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skill-card:hover {
+      border-color: rgba(0, 230, 118, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .skill-card.expanded {
+      border-color: rgba(0, 230, 118, 0.5);
+    }
+
+    .skill-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .skill-number {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+      border-radius: var(--mb-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--mb-ink);
+      flex-shrink: 0;
+    }
+
+    .skill-info { flex: 1; }
+
+    .skill-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .skill-desc {
+      font-size: 13px;
+      color: var(--mb-muted);
+      line-height: 1.4;
+    }
+
+    .skill-expand {
+      font-size: 20px;
+      color: var(--mb-muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .skill-card.expanded .skill-expand {
+      transform: rotate(180deg);
+    }
+
+    .skill-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    .skill-card.expanded .skill-body {
+      max-height: 2000px;
+      padding-top: 16px;
+    }
+
+    .skill-content {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--mb-white);
+    }
+
+    .skill-content h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-green);
+      margin: 16px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .skill-content ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .skill-content li {
+      padding: 6px 0 6px 20px;
+      position: relative;
+    }
+
+    .skill-content li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--mb-green);
+      font-weight: 700;
+    }
+
+    .skill-content .example-box {
+      background: rgba(0, 230, 118, 0.06);
+      border-left: 3px solid var(--mb-green);
+      padding: 12px 16px;
+      margin: 12px 0;
+      border-radius: 0 var(--mb-radius-sm) var(--mb-radius-sm) 0;
+    }
+
+    .skill-content .example-box.weak {
+      background: rgba(251, 113, 133, 0.06);
+      border-left-color: var(--mb-red);
+    }
+
+    .skill-content .example-box strong {
+      color: var(--mb-green);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .skill-content .example-box.weak strong {
+      color: var(--mb-red);
+    }
+
+    /* Practice button in skill */
+    .practice-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+      color: var(--mb-ink);
+      border: none;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .practice-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(0, 230, 118, 0.3);
+    }
+
+    /* Drills section */
+    .drill-card {
+      background: var(--mb-panel);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .drill-card:hover {
+      border-color: rgba(0, 230, 118, 0.3);
+    }
+
+    .drill-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .drill-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--mb-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .drill-icon.vision { background: rgba(0, 230, 118, 0.15); }
+    .drill-icon.investor { background: rgba(56, 189, 248, 0.15); }
+    .drill-icon.school { background: rgba(251, 191, 36, 0.15); }
+    .drill-icon.student { background: rgba(167, 139, 250, 0.15); }
+    .drill-icon.media { background: rgba(251, 113, 133, 0.15); }
+
+    .drill-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .drill-prompt {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--mb-white);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .drill-meta {
+      font-size: 12px;
+      color: var(--mb-muted);
+      margin-bottom: 16px;
+    }
+
+    .drill-timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 48px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--mb-green);
+      margin: 20px 0;
+      font-family: 'Inter', monospace;
+    }
+
+    .drill-timer.running { color: var(--mb-gold); }
+    .drill-timer.warning { color: var(--mb-red); }
+
+    .timer-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .timer-btn {
+      padding: 12px 28px;
+      border-radius: 100px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .timer-btn.start {
+      background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+      color: var(--mb-ink);
+    }
+
+    .timer-btn.stop {
+      background: rgba(251, 113, 133, 0.2);
+      color: var(--mb-red);
+      border: 1px solid rgba(251, 113, 133, 0.4);
+    }
+
+    .timer-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Recording section */
+    .recorder-card {
+      background: var(--mb-panel);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-md);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .recorder-visual {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--mb-green), var(--mb-green-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s var(--mb-spring);
+    }
+
+    .recorder-visual:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 40px rgba(0, 230, 118, 0.3);
+    }
+
+    .recorder-visual.recording {
+      animation: pulse-record 1.5s ease-in-out infinite;
+      background: linear-gradient(135deg, var(--mb-red), #E11D48);
+    }
+
+    @keyframes pulse-record {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(251, 113, 133, 0.4); }
+      50% { box-shadow: 0 0 0 20px rgba(251, 113, 133, 0); }
+    }
+
+    .recorder-status {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .recorder-hint {
+      font-size: 13px;
+      color: var(--mb-muted);
+      margin-bottom: 20px;
+    }
+
+    .recording-list {
+      margin-top: 24px;
+      text-align: left;
+    }
+
+    .recording-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--mb-radius-sm);
+      margin-bottom: 8px;
+    }
+
+    .recording-item .play-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--mb-green);
+      border: none;
+      color: var(--mb-ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .recording-info {
+      flex: 1;
+    }
+
+    .recording-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .recording-time {
+      font-size: 11px;
+      color: var(--mb-muted);
+    }
+
+    .recording-delete {
+      background: none;
+      border: none;
+      color: var(--mb-red);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* Story Bank */
+    .story-category {
+      margin-bottom: 20px;
+    }
+
+    .story-category-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-green);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .story-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-sm);
+      color: var(--mb-white);
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 10px;
+    }
+
+    .story-input:focus {
+      outline: none;
+      border-color: var(--mb-green);
+    }
+
+    .story-input::placeholder { color: var(--mb-muted); }
+
+    .story-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .story-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-sm);
+      padding: 12px 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .story-item .delete-story {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: var(--mb-muted);
+      cursor: pointer;
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .story-item:hover .delete-story { opacity: 1; }
+
+    .add-story-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 2px dashed var(--mb-line);
+      border-radius: var(--mb-radius-sm);
+      color: var(--mb-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .add-story-btn:hover {
+      border-color: var(--mb-green);
+      color: var(--mb-green);
+    }
+
+    /* Progress section */
+    .progress-card {
+      background: var(--mb-panel);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .progress-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .progress-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mb-green);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--mb-green), var(--mb-green-soft));
+      border-radius: 100px;
+      transition: width 0.5s var(--mb-spring);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--mb-radius-sm);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--mb-green);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--mb-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Daily checklist */
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--mb-panel);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-sm);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checklist-item:hover {
+      border-color: rgba(0, 230, 118, 0.3);
+    }
+
+    .checklist-item.completed {
+      opacity: 0.6;
+    }
+
+    .checklist-item.completed .checklist-text {
+      text-decoration: line-through;
+      color: var(--mb-muted);
+    }
+
+    .check-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--mb-line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .checklist-item.completed .check-circle {
+      background: var(--mb-green);
+      border-color: var(--mb-green);
+    }
+
+    .check-circle svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .checklist-item.completed .check-circle svg {
+      opacity: 1;
+    }
+
+    .checklist-text {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .checklist-tag {
+      margin-left: auto;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: rgba(0, 230, 118, 0.1);
+      color: var(--mb-green);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* Hidden tab content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Weak language checker */
+    .checker-input {
+      width: 100%;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--mb-line);
+      border-radius: var(--mb-radius-sm);
+      color: var(--mb-white);
+      font-size: 15px;
+      font-family: inherit;
+      min-height: 120px;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    .checker-input:focus {
+      outline: none;
+      border-color: var(--mb-green);
+    }
+
+    .checker-results {
+      margin-top: 12px;
+    }
+
+    .weak-word {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(251, 113, 133, 0.15);
+      border: 1px solid rgba(251, 113, 133, 0.3);
+      border-radius: 100px;
+      color: var(--mb-red);
+      font-size: 13px;
+      font-weight: 600;
+      margin: 4px;
+    }
+
+    .strong-word {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(0, 230, 118, 0.15);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      border-radius: 100px;
+      color: var(--mb-green);
+      font-size: 13px;
+      font-weight: 600;
+      margin: 4px;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: rgba(7, 17, 31, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--mb-line);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 24px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      color: var(--mb-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .nav-btn.active {
+      color: var(--mb-green);
+    }
+
+    .nav-btn .nav-icon {
+      font-size: 22px;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .app {
+        max-width: 600px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+
+  <div class="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-brand">
+        <div class="header-icon">🎯</div>
+        <div>
+          <div class="header-title">Speaking Mastery</div>
+          <div class="header-subtitle">Founder Training System</div>
+        </div>
+      </div>
+      <div class="streak-pill">
+        <span>🔥</span>
+        <span id="streakCount">0</span> day streak
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <!-- SKILLS TAB -->
+      <div id="tab-skills" class="tab-content active">
+        <div class="section-title">10 Core Skills</div>
+        <div class="section-subtitle">Master these fundamentals to become an elite speaker and founder.</div>
+
+        <div id="skillsList"></div>
+      </div>
+
+      <!-- DAILY DRILLS TAB -->
+      <div id="tab-drills" class="tab-content">
+        <div class="section-title">Daily Drills</div>
+        <div class="section-subtitle">5 founder-specific speaking drills. 60 seconds each. No notes.</div>
+
+        <div id="drillsList"></div>
+      </div>
+
+      <!-- RECORD TAB -->
+      <div id="tab-record" class="tab-content">
+        <div class="section-title">Record & Review</div>
+        <div class="section-subtitle">Record yourself daily. Watch it back. Find the weak spots.</div>
+
+        <div class="recorder-card">
+          <div class="recorder-visual" id="recordBtn">🎙️</div>
+          <div class="recorder-status" id="recordStatus">Tap to start recording</div>
+          <div class="recorder-hint" id="recordHint">Record your 2-minute pitch, then review</div>
+          <div id="recordingTimer" style="font-size: 32px; font-weight: 800; color: var(--mb-green); margin: 12px 0; font-variant-numeric: tabular-nums; display: none;">00:00</div>
+
+          <div class="recording-list" id="recordingList"></div>
+        </div>
+
+        <div class="section-title" style="margin-top: 32px;">Review Checklist</div>
+        <div class="section-subtitle">Ask yourself these questions after every recording:</div>
+
+        <div class="checklist-item" data-check="um">
+          <div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <span class="checklist-text">Where did I say "um" or "uh"?</span>
+        </div>
+        <div class="checklist-item" data-check="boring">
+          <div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <span class="checklist-text">Where was I boring or flat?</span>
+        </div>
+        <div class="checklist-item" data-check="rush">
+          <div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <span class="checklist-text">Where did I rush or speed up?</span>
+        </div>
+        <div class="checklist-item" data-check="conviction">
+          <div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <span class="checklist-text">Where did I lose conviction?</span>
+        </div>
+        <div class="checklist-item" data-check="words">
+          <div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <span class="checklist-text">Where did I use too many words?</span>
+        </div>
+        <div class="checklist-item" data-check="weak">
+          <div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <span class="checklist-text">Did I use weak language? ("I think", "maybe")</span>
+        </div>
+      </div>
+
+      <!-- STORY BANK TAB -->
+      <div id="tab-stories" class="tab-content">
+        <div class="section-title">Story Bank</div>
+        <div class="section-subtitle">Facts convince. Stories stick. Build your collection.</div>
+
+        <div class="story-category">
+          <div class="story-category-title">👤 Student Stories</div>
+          <div class="story-list" id="studentStories"></div>
+          <button class="add-story-btn" onclick="addStory('student')">+ Add Student Story</button>
+        </div>
+
+        <div class="story-category">
+          <div class="story-category-title">👨‍🏫 Teacher Stories</div>
+          <div class="story-list" id="teacherStories"></div>
+          <button class="add-story-btn" onclick="addStory('teacher')">+ Add Teacher Story</button>
+        </div>
+
+        <div class="story-category">
+          <div class="story-category-title">🚀 Founder Stories</div>
+          <div class="story-list" id="founderStories"></div>
+          <button class="add-story-btn" onclick="addStory('founder')">+ Add Founder Story</button>
+        </div>
+      </div>
+
+      <!-- PROGRESS TAB -->
+      <div id="tab-progress" class="tab-content">
+        <div class="section-title">Your Progress</div>
+        <div class="section-subtitle">Track your speaking mastery journey.</div>
+
+        <div class="progress-card">
+          <div class="progress-header">
+            <span class="progress-label">Daily Goal</span>
+            <span class="progress-value" id="dailyProgress">0/5</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="dailyProgressBar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <div class="progress-header">
+            <span class="progress-label">Skills Explored</span>
+            <span class="progress-value" id="skillsProgress">0/10</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="skillsProgressBar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-number" id="statDrills">0</div>
+            <div class="stat-label">Drills Done</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="statRecordings">0</div>
+            <div class="stat-label">Recordings</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="statStories">0</div>
+            <div class="stat-label">Stories Saved</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="statStreak">0</div>
+            <div class="stat-label">Day Streak</div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 32px;">Today's Checklist</div>
+        <div id="dailyChecklist"></div>
+      </div>
+
+      <!-- LANGUAGE CHECKER TAB -->
+      <div id="tab-checker" class="tab-content">
+        <div class="section-title">Weak Language Checker</div>
+        <div class="section-subtitle">Paste your pitch or speech. We'll find weak words and suggest strong replacements.</div>
+
+        <textarea class="checker-input" id="checkerInput" placeholder="Paste your speech here...
+
+Example: 'We're trying to improve financial literacy and hopefully we can kind of help students sort of understand money better.'"></textarea>
+        <button class="practice-btn" onclick="checkLanguage()">🔍 Analyze Language</button>
+
+        <div class="checker-results" id="checkerResults"></div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <button class="nav-btn active" data-nav="skills">
+        <span class="nav-icon">📚</span>
+        <span>Skills</span>
+      </button>
+      <button class="nav-btn" data-nav="drills">
+        <span class="nav-icon">🎯</span>
+        <span>Drills</span>
+      </button>
+      <button class="nav-btn" data-nav="record">
+        <span class="nav-icon">🎙️</span>
+        <span>Record</span>
+      </button>
+      <button class="nav-btn" data-nav="stories">
+        <span class="nav-icon">📖</span>
+        <span>Stories</span>
+      </button>
+      <button class="nav-btn" data-nav="progress">
+        <span class="nav-icon">📊</span>
+        <span>Progress</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== DATA ====================
+    const skills = [
+      {
+        id: 1,
+        name: "Record Yourself Every Day",
+        desc: "The highest ROI activity. Watch it back. Find the weak spots.",
+        content: `
+          <h4>Every Day, Record:</h4>
+          <ul>
+            <li>2-minute MoneyBot pitch</li>
+            <li>2-minute investor pitch</li>
+            <li>2-minute superintendent pitch</li>
+            <li>2-minute media interview</li>
+          </ul>
+          <h4>Watch It Immediately. Ask:</h4>
+          <ul>
+            <li>Where did I say "um"?</li>
+            <li>Where was I boring?</li>
+            <li>Where did I rush?</li>
+            <li>Where did I lose conviction?</li>
+            <li>Where did I use too many words?</li>
+          </ul>
+          <div class="example-box">
+            <strong>Elite Insight</strong><br>
+            Most people never watch themselves. Elite speakers do. The mirror doesn't lie.
+          </div>
+        `
+      },
+      {
+        id: 2,
+        name: "Practice Slower Than Feels Natural",
+        desc: "Power sounds calm. Neediness sounds rushed. Slow it down.",
+        content: `
+          <h4>The Problem</h4>
+          <p>Most founders talk 30-50% too fast. Nerves make you speed up. Speed signals insecurity.</p>
+          <h4>The Fix</h4>
+          <ul>
+            <li>Take your current speaking speed</li>
+            <li>Slow it down</li>
+            <li>Then slow it down again</li>
+          </ul>
+          <h4>Study the Masters</h4>
+          <ul>
+            <li>Obama — deliberate, measured</li>
+            <li>Jobs — pauses for impact</li>
+            <li>Churchill — weight behind every word</li>
+          </ul>
+          <div class="example-box">
+            <strong>Remember</strong><br>
+            Power sounds calm. Neediness sounds rushed. Silence is a weapon.
+          </div>
+        `
+      },
+      {
+        id: 3,
+        name: "Eliminate Weak Language",
+        desc: "Replace hedging words with conviction words.",
+        content: `
+          <h4>Replace These Weak Words:</h4>
+          <div class="example-box weak">
+            <strong>Weak</strong><br>
+            "I think" · "Maybe" · "Kind of" · "Sort of" · "Hopefully" · "Trying to"
+          </div>
+          <div class="example-box">
+            <strong>Strong</strong><br>
+            "We believe" · "We've found" · "Our data shows" · "Our goal is" · "We are building"
+          </div>
+          <h4>Example Transformation</h4>
+          <div class="example-box weak">
+            <strong>Weak</strong><br>
+            "We're trying to improve financial literacy."
+          </div>
+          <div class="example-box">
+            <strong>Strong</strong><br>
+            "We're building the platform that makes financial literacy engaging for every student."
+          </div>
+        `
+      },
+      {
+        id: 4,
+        name: "Learn Strategic Pauses",
+        desc: "Silence forces attention. Most speakers fear it. Great speakers weaponize it.",
+        content: `
+          <h4>The Power of Pause</h4>
+          <p>Most speakers fear silence. Great speakers weaponize it. A pause creates anticipation.</p>
+          <h4>Example</h4>
+          <div class="example-box">
+            <strong>With Pauses</strong><br>
+            "Every year... [pause]<br>
+            millions of students graduate... [pause]<br>
+            without understanding money."
+          </div>
+          <h4>Practice This</h4>
+          <ul>
+            <li>Pause after your key point</li>
+            <li>Pause before the punchline</li>
+            <li>Pause when you feel nervous (don't fill the silence)</li>
+            <li>Count to 3 in your head</li>
+          </ul>
+        `
+      },
+      {
+        id: 5,
+        name: "Build a Story Bank",
+        desc: "Facts convince. Stories stick. Collect them intentionally.",
+        content: `
+          <h4>Student Stories</h4>
+          <ul>
+            <li>First budget they created</li>
+            <li>First savings goal they hit</li>
+            <li>First investing lesson they learned</li>
+            <li>Transformation from "I don't care" to "I got this"</li>
+          </ul>
+          <h4>Teacher Stories</h4>
+          <ul>
+            <li>Classroom engagement breakthrough</li>
+            <li>Student breakthrough moments</li>
+            <li>Teacher's own financial journey</li>
+          </ul>
+          <h4>Founder Stories</h4>
+          <ul>
+            <li>Why you started MoneyBot</li>
+            <li>Your mother's education background</li>
+            <li>Early struggles and pivots</li>
+            <li>The moment you knew it would work</li>
+          </ul>
+          <div class="example-box">
+            <strong>Golden Rule</strong><br>
+            Facts convince. Stories stick. A story with a number is unforgettable.
+          </div>
+        `
+      },
+      {
+        id: 6,
+        name: "Practice the Same Pitch 1,000 Times",
+        desc: "Great founders repeat. Steve Jobs told the same story for years.",
+        content: `
+          <h4>Have Multiple Versions</h4>
+          <ul>
+            <li><strong>30-second version</strong> — elevator, casual intro</li>
+            <li><strong>2-minute version</strong> — most common, meetings</li>
+            <li><strong>5-minute version</strong> — presentations, pitches</li>
+            <li><strong>15-minute version</strong> — keynotes, deep dives</li>
+          </ul>
+          <h4>All Based on the Same Core Narrative</h4>
+          <p>Don't rewrite. Refine. Each version is a expansion of the same story, not a different story.</p>
+          <div class="example-box">
+            <strong>Steve Jobs Principle</strong><br>
+            Jobs told essentially the same Apple story for years. The consistency made it iconic.
+          </div>
+        `
+      },
+      {
+        id: 7,
+        name: "Read Great Speeches Out Loud",
+        desc: "Train cadence by absorbing rhythm from the masters.",
+        content: `
+          <h4>Read These Out Loud, Daily</h4>
+          <ul>
+            <li>MLK — "I Have a Dream"</li>
+            <li>JFK — "Ask Not"</li>
+            <li>Churchill — "We Shall Fight"</li>
+            <li>Obama — "Yes We Can"</li>
+          </ul>
+          <h4>What to Listen For</h4>
+          <ul>
+            <li>Rhythm and cadence</li>
+            <li>Repetition patterns</li>
+            <li>Where they speed up vs slow down</li>
+            <li>How they build to a climax</li>
+          </ul>
+          <div class="example-box">
+            <strong>Daily Habit</strong><br>
+            15 minutes daily reading speeches out loud. You'll absorb rhythm automatically.
+          </div>
+        `
+      },
+      {
+        id: 8,
+        name: "Get Better at Eye Contact",
+        desc: "Don't scan randomly. Address one person at a time.",
+        content: `
+          <h4>The Technique</h4>
+          <ul>
+            <li>Look at one person</li>
+            <li>Complete your thought</li>
+            <li>Move to the next person</li>
+            <li>Complete your thought</li>
+          </ul>
+          <h4>Why This Works</h4>
+          <p>Makes audiences feel individually addressed. Creates connection. Feels intimate even in large rooms.</p>
+          <h4>Practice</h4>
+          <ul>
+            <li>Practice with a friend — hold eye contact for full sentences</li>
+            <li>In meetings, pick one person per point</li>
+            <li>On video calls, look at the camera, not the screen</li>
+          </ul>
+        `
+      },
+      {
+        id: 9,
+        name: "Become a Better Listener",
+        desc: "The best speakers are often the best listeners.",
+        content: `
+          <h4>The Problem</h4>
+          <p>Most people are just waiting for their turn to speak. They're thinking about their next response instead of actually listening.</p>
+          <h4>The Fix</h4>
+          <ul>
+            <li>When someone answers, actually listen</li>
+            <li>Don't think about your next response</li>
+            <li>Pause before responding</li>
+            <li>Ask follow-up questions based on what they said</li>
+          </ul>
+          <div class="example-box">
+            <strong>People Feel the Difference</strong><br>
+            When you truly listen, people feel it immediately. It builds trust faster than any pitch.
+          </div>
+        `
+      },
+      {
+        id: 10,
+        name: "Practice High-Stakes Reps",
+        desc: "The fastest improvement happens under pressure.",
+        content: `
+          <h4>Volunteer For:</h4>
+          <ul>
+            <li>School board meetings</li>
+            <li>Chamber of Commerce events</li>
+            <li>Rotary clubs</li>
+            <li>Podcasts</li>
+            <li>Local TV</li>
+            <li>Investor meetings</li>
+            <li>Teacher PD sessions</li>
+          </ul>
+          <h4>The Hidden Skill</h4>
+          <p>Study interviews, not speeches. Your actual life will be Q&A — investor Q&A, superintendent Q&A, media Q&A, podcast Q&A.</p>
+          <div class="example-box">
+            <strong>70% Rule</strong><br>
+            Spend 70% of your speaking practice answering unexpected questions. That's where founders separate themselves.
+          </div>
+        `
+      }
+    ];
+
+    const drills = [
+      {
+        id: 'vision',
+        icon: 'vision',
+        emoji: '🚀',
+        title: 'Vision Drill',
+        prompt: 'Why does MoneyBot exist?',
+        duration: 60,
+        audience: 'Any audience'
+      },
+      {
+        id: 'investor',
+        icon: 'investor',
+        emoji: '💰',
+        title: 'Investor Drill',
+        prompt: 'Why now?',
+        duration: 60,
+        audience: 'Investors'
+      },
+      {
+        id: 'school',
+        icon: 'school',
+        emoji: '🏫',
+        title: 'School Leader Drill',
+        prompt: 'Why should I care?',
+        duration: 60,
+        audience: 'Superintendents & Principals'
+      },
+      {
+        id: 'student',
+        icon: 'student',
+        emoji: '🎓',
+        title: 'Student Drill',
+        prompt: 'Why is this better than TikTok?',
+        duration: 60,
+        audience: 'Students'
+      },
+      {
+        id: 'media',
+        icon: 'media',
+        emoji: '📺',
+        title: 'Media Drill',
+        prompt: "What's the big problem?",
+        duration: 30,
+        audience: 'Media & Press'
+      }
+    ];
+
+    const weakWords = {
+      'i think': 'We believe',
+      'maybe': 'We will',
+      'kind of': 'Specifically',
+      'sort of': 'Clearly',
+      'hopefully': 'Our plan is',
+      'trying to': 'We are',
+      'just': '',
+      'basically': '',
+      'actually': '',
+      'honestly': '',
+      'literally': '',
+      'very': '',
+      'really': '',
+      'pretty': '',
+      'probably': 'We expect',
+      'might': 'We will',
+      'could': 'We can',
+      'should': 'We must',
+      'would': 'We will'
+    };
+
+    // ==================== STATE ====================
+    let currentTab = 'skills';
+    let activeDrill = null;
+    let drillTimer = null;
+    let drillTimeLeft = 0;
+    let isRecording = false;
+    let recordingStartTime = null;
+    let recordingTimer = null;
+    let recordings = JSON.parse(localStorage.getItem('sm_recordings') || '[]');
+    let stories = JSON.parse(localStorage.getItem('sm_stories') || '{"student":[],"teacher":[],"founder":[]}');
+    let checklist = JSON.parse(localStorage.getItem('sm_checklist') || '{}');
+    let streak = parseInt(localStorage.getItem('sm_streak') || '0');
+    let lastActive = localStorage.getItem('sm_lastActive') || null;
+    let drillsCompleted = parseInt(localStorage.getItem('sm_drillsCompleted') || '0');
+    let skillsExplored = JSON.parse(localStorage.getItem('sm_skillsExplored') || '[]');
+
+    // ==================== INIT ====================
+    function init() {
+      updateStreak();
+      renderSkills();
+      renderDrills();
+      renderRecordings();
+      renderStories();
+      renderDailyChecklist();
+      updateProgress();
+
+      // Nav buttons
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.nav;
+          switchTab(tab);
+        });
+      });
+
+      // Checklist items
+      document.querySelectorAll('.checklist-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const check = item.dataset.check;
+          checklist[check] = !checklist[check];
+          item.classList.toggle('completed', checklist[check]);
+          saveData();
+          updateProgress();
+        });
+        // Init state
+        if (checklist[item.dataset.check]) {
+          item.classList.add('completed');
+        }
+      });
+    }
+
+    // ==================== TABS ====================
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      document.querySelector(`[data-nav="${tab}"]`).classList.add('active');
+    }
+
+    // ==================== SKILLS ====================
+    function renderSkills() {
+      const container = document.getElementById('skillsList');
+      container.innerHTML = skills.map(skill => `
+        <div class="skill-card" id="skill-${skill.id}" onclick="toggleSkill(${skill.id})">
+          <div class="skill-header">
+            <div class="skill-number">${skill.id}</div>
+            <div class="skill-info">
+              <div class="skill-name">${skill.name}</div>
+              <div class="skill-desc">${skill.desc}</div>
+            </div>
+            <div class="skill-expand">▼</div>
+          </div>
+          <div class="skill-body">
+            <div class="skill-content">${skill.content}</div>
+            <button class="practice-btn" onclick="event.stopPropagation(); markSkillExplored(${skill.id}); startDrillForSkill(${skill.id})">
+              🎯 Practice This Skill
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleSkill(id) {
+      const card = document.getElementById(`skill-${id}`);
+      const wasExpanded = card.classList.contains('expanded');
+
+      // Close all
+      document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('expanded'));
+
+      // Toggle current
+      if (!wasExpanded) {
+        card.classList.add('expanded');
+        if (!skillsExplored.includes(id)) {
+          skillsExplored.push(id);
+          localStorage.setItem('sm_skillsExplored', JSON.stringify(skillsExplored));
+          updateProgress();
+        }
+      }
+    }
+
+    function markSkillExplored(id) {
+      if (!skillsExplored.includes(id)) {
+        skillsExplored.push(id);
+        localStorage.setItem('sm_skillsExplored', JSON.stringify(skillsExplored));
+        updateProgress();
+      }
+    }
+
+    function startDrillForSkill(skillId) {
+      switchTab('drills');
+    }
+
+    // ==================== DRILLS ====================
+    function renderDrills() {
+      const container = document.getElementById('drillsList');
+      container.innerHTML = drills.map(drill => `
+        <div class="drill-card" id="drill-${drill.id}">
+          <div class="drill-header">
+            <div class="drill-icon ${drill.icon}">${drill.emoji}</div>
+            <div>
+              <div class="drill-title">${drill.title}</div>
+              <div style="font-size: 12px; color: var(--mb-muted);">${drill.audience}</div>
+            </div>
+          </div>
+          <div class="drill-prompt">${drill.prompt}</div>
+          <div class="drill-meta">${drill.duration} seconds · No notes</div>
+          <div class="drill-timer" id="timer-${drill.id}">00:${drill.duration}</div>
+          <div class="timer-controls">
+            <button class="timer-btn start" id="start-${drill.id}" onclick="startDrill('${drill.id}')">▶ Start</button>
+            <button class="timer-btn stop" id="stop-${drill.id}" onclick="stopDrill('${drill.id}')" disabled>⏹ Stop</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function startDrill(drillId) {
+      if (activeDrill) stopDrill(activeDrill);
+
+      const drill = drills.find(d => d.id === drillId);
+      activeDrill = drillId;
+      drillTimeLeft = drill.duration;
+
+      document.getElementById(`start-${drillId}`).disabled = true;
+      document.getElementById(`stop-${drillId}`).disabled = false;
+
+      updateTimerDisplay(drillId);
+
+      drillTimer = setInterval(() => {
+        drillTimeLeft--;
+        updateTimerDisplay(drillId);
+
+        if (drillTimeLeft <= 0) {
+          stopDrill(drillId);
+          // Mark drill as completed
+          drillsCompleted++;
+          localStorage.setItem('sm_drillsCompleted', drillsCompleted);
+          updateProgress();
+        }
+      }, 1000);
+    }
+
+    function stopDrill(drillId) {
+      if (drillTimer) {
+        clearInterval(drillTimer);
+        drillTimer = null;
+      }
+
+      const drill = drills.find(d => d.id === drillId);
+      document.getElementById(`timer-${drillId}`).textContent = `00:${String(drill.duration).padStart(2, '0')}`;
+      document.getElementById(`timer-${drillId}`).classList.remove('running', 'warning');
+      document.getElementById(`start-${drillId}`).disabled = false;
+      document.getElementById(`stop-${drillId}`).disabled = true;
+
+      activeDrill = null;
+    }
+
+    function updateTimerDisplay(drillId) {
+      const timerEl = document.getElementById(`timer-${drillId}`);
+      const mins = Math.floor(drillTimeLeft / 60);
+      const secs = drillTimeLeft % 60;
+      timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      timerEl.classList.add('running');
+      if (drillTimeLeft <= 10) {
+        timerEl.classList.add('warning');
+      }
+    }
+
+    // ==================== RECORDING ====================
+    const recordBtn = document.getElementById('recordBtn');
+    const recordStatus = document.getElementById('recordStatus');
+    const recordHint = document.getElementById('recordHint');
+    const recordingTimerEl = document.getElementById('recordingTimer');
+
+    recordBtn.addEventListener('click', toggleRecording);
+
+    function toggleRecording() {
+      if (!isRecording) {
+        startRecording();
+      } else {
+        stopRecording();
+      }
+    }
+
+    function startRecording() {
+      isRecording = true;
+      recordingStartTime = Date.now();
+      recordBtn.classList.add('recording');
+      recordBtn.textContent = '⏹';
+      recordStatus.textContent = 'Recording...';
+      recordHint.textContent = 'Tap the circle to stop';
+      recordingTimerEl.style.display = 'block';
+
+      recordingTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+        const mins = Math.floor(elapsed / 60);
+        const secs = elapsed % 60;
+        recordingTimerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+      clearInterval(recordingTimer);
+
+      recordBtn.classList.remove('recording');
+      recordBtn.textContent = '🎙️';
+      recordStatus.textContent = 'Recording saved!';
+      recordHint.textContent = 'Tap to record another';
+      recordingTimerEl.style.display = 'none';
+
+      const recording = {
+        id: Date.now(),
+        date: new Date().toLocaleString(),
+        duration: elapsed,
+        name: `Recording ${recordings.length + 1}`
+      };
+      recordings.unshift(recording);
+      localStorage.setItem('sm_recordings', JSON.stringify(recordings));
+      renderRecordings();
+      updateProgress();
+    }
+
+    function renderRecordings() {
+      const container = document.getElementById('recordingList');
+      if (recordings.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--mb-muted); padding: 20px;">No recordings yet. Start practicing!</div>';
+        return;
+      }
+
+      container.innerHTML = recordings.map(rec => {
+        const mins = Math.floor(rec.duration / 60);
+        const secs = rec.duration % 60;
+        return `
+          <div class="recording-item">
+            <button class="play-btn">▶</button>
+            <div class="recording-info">
+              <div class="recording-name">${rec.name}</div>
+              <div class="recording-time">${rec.date} · ${mins}:${String(secs).padStart(2, '0')}</div>
+            </div>
+            <button class="recording-delete" onclick="deleteRecording(${rec.id})">🗑</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteRecording(id) {
+      recordings = recordings.filter(r => r.id !== id);
+      localStorage.setItem('sm_recordings', JSON.stringify(recordings));
+      renderRecordings();
+      updateProgress();
+    }
+
+    // ==================== STORIES ====================
+    function renderStories() {
+      ['student', 'teacher', 'founder'].forEach(type => {
+        const container = document.getElementById(`${type}Stories`);
+        const items = stories[type] || [];
+        container.innerHTML = items.map((story, idx) => `
+          <div class="story-item">
+            ${story}
+            <button class="delete-story" onclick="deleteStory('${type}', ${idx})">×</button>
+          </div>
+        `).join('');
+      });
+    }
+
+    function addStory(type) {
+      const text = prompt(`Enter your ${type} story:`);
+      if (text && text.trim()) {
+        stories[type].push(text.trim());
+        localStorage.setItem('sm_stories', JSON.stringify(stories));
+        renderStories();
+        updateProgress();
+      }
+    }
+
+    function deleteStory(type, idx) {
+      stories[type].splice(idx, 1);
+      localStorage.setItem('sm_stories', JSON.stringify(stories));
+      renderStories();
+      updateProgress();
+    }
+
+    // ==================== LANGUAGE CHECKER ====================
+    function checkLanguage() {
+      const input = document.getElementById('checkerInput').value.toLowerCase();
+      const resultsDiv = document.getElementById('checkerResults');
+
+      if (!input.trim()) {
+        resultsDiv.innerHTML = '<div style="color: var(--mb-muted);">Enter some text to analyze.</div>';
+        return;
+      }
+
+      const found = [];
+      Object.entries(weakWords).forEach(([weak, strong]) => {
+        if (input.includes(weak)) {
+          found.push({ weak, strong });
+        }
+      });
+
+      if (found.length === 0) {
+        resultsDiv.innerHTML = `
+          <div style="background: rgba(0, 230, 118, 0.1); border: 1px solid var(--mb-green); border-radius: var(--mb-radius-sm); padding: 16px;">
+            <strong style="color: var(--mb-green);">✓ Strong language detected!</strong><br>
+            <span style="color: var(--mb-muted); font-size: 13px;">No weak words found. Your copy sounds confident.</span>
+          </div>
+        `;
+      } else {
+        resultsDiv.innerHTML = `
+          <div style="margin-bottom: 12px; color: var(--mb-muted); font-size: 13px;">
+            Found ${found.length} weak word${found.length > 1 ? 's' : ''}:
+          </div>
+          <div>
+            ${found.map(f => `
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
+                <span class="weak-word">${f.weak}</span>
+                <span style="color: var(--mb-muted);">→</span>
+                <span class="strong-word">${f.strong || 'Remove entirely'}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    // ==================== PROGRESS ====================
+    function updateProgress() {
+      const dailyItems = ['um', 'boring', 'rush', 'conviction', 'words', 'weak'];
+      const completedDaily = dailyItems.filter(k => checklist[k]).length;
+      const dailyPct = (completedDaily / dailyItems.length) * 100;
+
+      document.getElementById('dailyProgress').textContent = `${completedDaily}/${dailyItems.length}`;
+      document.getElementById('dailyProgressBar').style.width = `${dailyPct}%`;
+
+      const skillsPct = (skillsExplored.length / skills.length) * 100;
+      document.getElementById('skillsProgress').textContent = `${skillsExplored.length}/${skills.length}`;
+      document.getElementById('skillsProgressBar').style.width = `${skillsPct}%`;
+
+      document.getElementById('statDrills').textContent = drillsCompleted;
+      document.getElementById('statRecordings').textContent = recordings.length;
+      const totalStories = (stories.student?.length || 0) + (stories.teacher?.length || 0) + (stories.founder?.length || 0);
+      document.getElementById('statStories').textContent = totalStories;
+      document.getElementById('statStreak').textContent = streak;
+      document.getElementById('streakCount').textContent = streak;
+    }
+
+    function updateStreak() {
+      const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+      if (lastActive === today) {
+        // Already active today
+      } else if (lastActive === yesterday) {
+        streak++;
+      } else if (lastActive && lastActive !== today) {
+        streak = 1;
+      } else {
+        streak = 1;
+      }
+
+      lastActive = today;
+      localStorage.setItem('sm_streak', streak);
+      localStorage.setItem('sm_lastActive', lastActive);
+    }
+
+    function renderDailyChecklist() {
+      const items = [
+        { id: 'record', text: 'Record yourself (2 min pitch)', tag: 'Daily' },
+        { id: 'drill', text: 'Complete 1 founder drill', tag: 'Daily' },
+        { id: 'speech', text: 'Read a great speech out loud', tag: 'Daily' },
+        { id: 'story', text: 'Add 1 story to your story bank', tag: 'Build' },
+        { id: 'review', text: 'Review yesterday\'s recording', tag: 'Review' }
+      ];
+
+      const container = document.getElementById('dailyChecklist');
+      container.innerHTML = items.map(item => `
+        <div class="checklist-item ${checklist[item.id] ? 'completed' : ''}" data-daily="${item.id}">
+          <div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <span class="checklist-text">${item.text}</span>
+          <span class="checklist-tag">${item.tag}</span>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.checklist-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.dataset.daily;
+          checklist[id] = !checklist[id];
+          el.classList.toggle('completed', checklist[id]);
+          saveData();
+          updateProgress();
+        });
+      });
+    }
+
+    function saveData() {
+      localStorage.setItem('sm_checklist', JSON.stringify(checklist));
+    }
+
+    // ==================== START ====================
+    init();
+  </script>
+</body>
+</html>
