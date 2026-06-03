@@ -938,6 +938,67 @@
     }
     .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
+    /* Today's Focus card */
+    .focus-card {
+      background: linear-gradient(135deg, rgba(67, 255, 100, 0.08), rgba(56, 189, 248, 0.04));
+      border: 1px solid rgba(67, 255, 100, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 20px 0 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .focus-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--blue), var(--accent));
+      opacity: 0.6;
+    }
+    .focus-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .focus-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .focus-item:last-child { border-bottom: none; }
+    .focus-item:hover { opacity: 0.8; }
+    .focus-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .focus-body { flex: 1; }
+    .focus-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .focus-desc { font-size: 12px; color: var(--text-dim); font-weight: 300; }
+    .focus-action {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+
     /* Bottom nav */
     .bottom-nav {
       position: fixed;
@@ -1053,6 +1114,7 @@
     <div class="content">
       <!-- SKILLS -->
       <div id="tab-skills" class="tab-panel active">
+        <div id="todayFocus"></div>
         <div class="section-header">
           <div class="section-label">Foundation</div>
           <div class="section-title">10 Core Skills</div>
@@ -1541,6 +1603,7 @@ Same core narrative, different length.
       renderDailyChecklist();
       renderPitchTabs();
       switchPitchVersion('30s');
+      renderTodayFocus();
       updateProgress();
 
       document.getElementById('pitchEditor').addEventListener('input', updatePitchWordcount);
@@ -2153,6 +2216,45 @@ Same core narrative, different length.
 
     function saveData() {
       localStorage.setItem('sm_checklist', JSON.stringify(checklist));
+    }
+
+    // ==================== TODAY'S FOCUS ====================
+    function renderTodayFocus() {
+      const container = document.getElementById('todayFocus');
+      if (!container) return;
+
+      // Find least explored skill
+      const unexplored = skills.filter(s => !skillsExplored.includes(s.id));
+      const skill = unexplored.length > 0 ? unexplored[0] : skills[Math.floor(Math.random() * skills.length)];
+
+      // Find drill with fewest completions
+      const drillCounts = {};
+      drills.forEach(d => drillCounts[d.id] = 0);
+      const drillReviews = JSON.parse(localStorage.getItem('sm_drillReviews') || '[]');
+      drillReviews.forEach(r => { if (drillCounts[r.drillId] !== undefined) drillCounts[r.drillId]++; });
+      const leastDoneDrill = drills.reduce((a, b) => drillCounts[a.id] < drillCounts[b.id] ? a : b);
+
+      container.innerHTML = `
+        <div class="focus-card">
+          <div class="focus-label">◆ Today's Focus</div>
+          <div class="focus-item" onclick="document.getElementById('skill-${skill.id}').scrollIntoView({behavior:'smooth'}); toggleSkill(${skill.id});">
+            <div class="focus-num">${String(skill.id).padStart(2,'0')}</div>
+            <div class="focus-body">
+              <div class="focus-title">${skill.name}</div>
+              <div class="focus-desc">${skill.desc}</div>
+              <div class="focus-action">Read Skill →</div>
+            </div>
+          </div>
+          <div class="focus-item" onclick="switchTab('drills'); setTimeout(() => document.getElementById('drill-${leastDoneDrill.id}').scrollIntoView({behavior:'smooth'}), 100);">
+            <div class="focus-num" style="border-color:var(--blue);color:var(--blue)">${leastDoneDrill.emoji}</div>
+            <div class="focus-body">
+              <div class="focus-title">${leastDoneDrill.prompt}</div>
+              <div class="focus-desc">${leastDoneDrill.audience} · ${leastDoneDrill.duration}s</div>
+              <div class="focus-action" style="color:var(--blue)">Start Drill →</div>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     // ==================== THEME ====================
