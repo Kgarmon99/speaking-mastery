@@ -1739,9 +1739,9 @@ Same core narrative, different length.
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
         audioChunks = [];
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
 
-        mediaRecorder.start();
+        mediaRecorder.start(1000); // collect every second
         isRecording = true;
         recordingStartTime = Date.now();
         recordBtn.classList.add('recording');
@@ -1757,9 +1757,8 @@ Same core narrative, different length.
           recordingTimerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
         }, 1000);
 
-        // Start speech recognition
         if (hasSpeechAPI && recognition) {
-          recognition.start();
+          try { recognition.start(); } catch(e) {}
         }
       } catch (err) {
         recordStatus.textContent = 'Mic access denied';
@@ -1770,7 +1769,6 @@ Same core narrative, different length.
     function stopRecording() {
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach(t => t.stop());
       }
       if (recognition) {
         try { recognition.stop(); } catch(e) {}
@@ -1781,21 +1779,33 @@ Same core narrative, different length.
       clearInterval(recordingTimer);
       recordBtn.classList.remove('recording');
       recordBtn.textContent = '●';
-      recordStatus.textContent = 'Saved!';
-      recordHint.textContent = 'Tap to record another';
-      recordingTimerEl.style.display = 'none';
+      recordStatus.textContent = 'Processing...';
 
-      recordings.unshift({
-        id: Date.now(),
-        date: new Date().toLocaleString(),
-        duration: elapsed,
-        name: `Recording ${recordings.length + 1}`,
-        transcript: currentTranscript || null,
-        weakWordsFound: currentWeakWordsFound || []
-      });
-      localStorage.setItem('sm_recordings', JSON.stringify(recordings));
-      renderRecordings();
-      updateProgress();
+      // Wait for MediaRecorder to finish
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = () => {
+          const audioBase64 = reader.result;
+
+          recordings.unshift({
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            duration: elapsed,
+            name: `Recording ${recordings.length + 1}`,
+            audio: audioBase64,
+            transcript: currentTranscript || null,
+            weakWordsFound: currentWeakWordsFound || []
+          });
+          localStorage.setItem('sm_recordings', JSON.stringify(recordings));
+          renderRecordings();
+          updateProgress();
+          recordStatus.textContent = 'Saved!';
+          recordHint.textContent = 'Tap to record another';
+          recordingTimerEl.style.display = 'none';
+        };
+      };
     }
 
     let currentTranscript = '';
@@ -1813,6 +1823,8 @@ Same core narrative, different length.
       };
     }
 
+    let currentlyPlaying = null;
+
     function renderRecordings() {
       const container = document.getElementById('recordingList');
       if (recordings.length === 0) {
@@ -1824,9 +1836,10 @@ Same core narrative, different length.
         const secs = rec.duration % 60;
         const hasTranscript = rec.transcript && rec.transcript.length > 0;
         const hasWeakWords = rec.weakWordsFound && rec.weakWordsFound.length > 0;
+        const hasAudio = rec.audio && rec.audio.length > 0;
         return `
           <div class="recording-item" id="rec-${rec.id}">
-            <button class="play-btn">▶</button>
+            ${hasAudio ? `<button class="play-btn" id="play-${rec.id}" onclick="playRecording(${rec.id})">▶</button>` : '<button class="play-btn" style="opacity:0.3;cursor:default">▶</button>'}
             <div class="recording-info">
               <div class="recording-name">${rec.name}</div>
               <div class="recording-time">${rec.date} · ${mins}:${String(secs).padStart(2,'0')}</div>
@@ -1841,6 +1854,34 @@ Same core narrative, different length.
           </div>
         `;
       }).join('');
+    }
+
+    function playRecording(id) {
+      const rec = recordings.find(r => r.id === id);
+      if (!rec || !rec.audio) return;
+
+      // Stop current if playing
+      if (currentlyPlaying) {
+        currentlyPlaying.pause();
+        currentlyPlaying = null;
+        document.querySelectorAll('.play-btn').forEach(b => b.textContent = '▶');
+      }
+
+      const audio = new Audio(rec.audio);
+      const btn = document.getElementById(`play-${id}`);
+      btn.textContent = '⏸';
+
+      audio.onended = () => {
+        btn.textContent = '▶';
+        currentlyPlaying = null;
+      };
+
+      audio.onpause = () => {
+        btn.textContent = '▶';
+      };
+
+      audio.play();
+      currentlyPlaying = audio;
     }
 
     function toggleTranscript(id) {
