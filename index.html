@@ -27,6 +27,16 @@
       --purple: #a78bfa;
     }
 
+    [data-theme="light"] {
+      --bg: #f5f5f5;
+      --bg-elevated: #ffffff;
+      --grid: rgba(67, 255, 100, 0.03);
+      --text: #111111;
+      --text-dim: #555555;
+      --text-muted: #999999;
+      --border: rgba(0, 0, 0, 0.08);
+    }
+
     /* Pitch versions */
     .pitch-tabs {
       display: flex;
@@ -907,6 +917,27 @@
       color: var(--accent);
     }
 
+    /* Theme toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 200;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-dim);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
     /* Bottom nav */
     .bottom-nav {
       position: fixed;
@@ -992,6 +1023,7 @@
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
   <div class="scanlines"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">◐</button>
 
   <div class="app">
     <!-- Header -->
@@ -1629,6 +1661,66 @@ Same core narrative, different length.
       document.getElementById(`start-${drillId}`).disabled = false;
       document.getElementById(`stop-${drillId}`).disabled = true;
       activeDrill = null;
+      showDrillReview(drillId);
+    }
+
+    function showDrillReview(drillId) {
+      const drill = drills.find(d => d.id === drillId);
+      const modal = document.createElement('div');
+      modal.id = 'drillReviewModal';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;';
+      modal.innerHTML = `
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:400px;width:100%;animation:fadeIn 0.3s ease;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:var(--accent);margin-bottom:8px;">Drill Complete</div>
+          <div style="font-size:22px;font-weight:700;margin-bottom:4px;">${drill.prompt}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;">${drill.audience} · ${drill.duration}s</div>
+
+          <div style="font-size:13px;font-weight:600;margin-bottom:12px;">How did it go?</div>
+          <div style="display:flex;gap:8px;margin-bottom:20px;">
+            <button onclick="rateDrill('${drillId}', 'good')" style="flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font-size:20px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">👍</button>
+            <button onclick="rateDrill('${drillId}', 'okay')" style="flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font-size:20px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">🤔</button>
+            <button onclick="rateDrill('${drillId}', 'bad')" style="flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font-size:20px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">👎</button>
+          </div>
+
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Notes (optional)</div>
+          <textarea id="drillNotes" placeholder="What went well? What needs work?" style="width:100%;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'Space Grotesk',sans-serif;min-height:80px;resize:vertical;margin-bottom:16px;"></textarea>
+
+          <button class="btn-primary" onclick="saveDrillReview('${drillId}')" style="width:100%;justify-content:center;">Save Review</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    let currentDrillRating = null;
+    function rateDrill(drillId, rating) {
+      currentDrillRating = rating;
+      document.querySelectorAll('#drillReviewModal button').forEach(b => {
+        if (b.textContent === '👍' || b.textContent === '🤔' || b.textContent === '👎') {
+          b.style.borderColor = 'var(--border)';
+          b.style.background = 'transparent';
+        }
+      });
+      const btn = event.target;
+      btn.style.borderColor = rating === 'good' ? 'var(--accent)' : rating === 'okay' ? 'var(--gold)' : 'var(--red)';
+      btn.style.background = rating === 'good' ? 'rgba(67,255,100,0.1)' : rating === 'okay' ? 'rgba(251,191,36,0.1)' : 'rgba(255,51,51,0.1)';
+    }
+
+    function saveDrillReview(drillId) {
+      const notes = document.getElementById('drillNotes').value;
+      const drill = drills.find(d => d.id === drillId);
+      const review = {
+        id: Date.now(),
+        drillId: drillId,
+        prompt: drill.prompt,
+        rating: currentDrillRating || 'okay',
+        notes: notes,
+        date: new Date().toLocaleString()
+      };
+      let drillReviews = JSON.parse(localStorage.getItem('sm_drillReviews') || '[]');
+      drillReviews.unshift(review);
+      localStorage.setItem('sm_drillReviews', JSON.stringify(drillReviews));
+      document.getElementById('drillReviewModal').remove();
+      currentDrillRating = null;
     }
 
     function updateTimerDisplay(drillId) {
@@ -2063,8 +2155,21 @@ Same core narrative, different length.
       localStorage.setItem('sm_checklist', JSON.stringify(checklist));
     }
 
+    // ==================== THEME ====================
+    let currentTheme = localStorage.getItem('sm_theme') || 'dark';
+    function applyTheme() {
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      document.getElementById('themeToggle').textContent = currentTheme === 'dark' ? '◐' : '◑';
+    }
+    function toggleTheme() {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('sm_theme', currentTheme);
+      applyTheme();
+    }
+
     // ==================== START ====================
     init();
+    applyTheme();
   </script>
 </body>
 </html>
