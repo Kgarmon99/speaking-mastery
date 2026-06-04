@@ -1878,15 +1878,17 @@ Same core narrative, different length.
     }
 
     // ==================== AUDIO RECORDING (Cross-platform) ====================
-    // WAV encoder for iOS Safari compatibility
+    // WAV encoder — chunked to avoid blocking UI
     function encodeWAV(samples, sampleRate) {
-      const buffer = new ArrayBuffer(44 + samples.length * 2);
+      const totalSamples = samples.length;
+      const dataSize = totalSamples * 2;
+      const buffer = new ArrayBuffer(44 + dataSize);
       const view = new DataView(buffer);
       const writeString = (offset, string) => {
         for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
       };
       writeString(0, 'RIFF');
-      view.setUint32(4, 36 + samples.length * 2, true);
+      view.setUint32(4, 36 + dataSize, true);
       writeString(8, 'WAVE');
       writeString(12, 'fmt ');
       view.setUint32(16, 16, true);
@@ -1897,10 +1899,16 @@ Same core narrative, different length.
       view.setUint16(32, 2, true);
       view.setUint16(34, 16, true);
       writeString(36, 'data');
-      view.setUint32(40, samples.length * 2, true);
-      for (let i = 0; i < samples.length; i++) {
-        let s = Math.max(-1, Math.min(1, samples[i]));
-        view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      view.setUint32(40, dataSize, true);
+
+      // Write samples in chunks to avoid blocking
+      const chunkSize = 44100;
+      for (let offset = 0; offset < totalSamples; offset += chunkSize) {
+        const end = Math.min(offset + chunkSize, totalSamples);
+        for (let i = offset; i < end; i++) {
+          let s = Math.max(-1, Math.min(1, samples[i]));
+          view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        }
       }
       return new Blob([view], { type: 'audio/wav' });
     }
@@ -1984,31 +1992,52 @@ Same core narrative, different length.
       clearInterval(recordingTimer);
       recordBtn.classList.remove('recording');
       recordBtn.textContent = '●';
-      recordStatus.textContent = 'Processing...';
+      recordStatus.textContent = 'Saving...';
+      recordHint.textContent = 'Encoding audio';
 
-      // Encode to WAV
-      const wavBlob = encodeWAV(recordedSamples, 16000);
-      const reader = new FileReader();
-      reader.readAsDataURL(wavBlob);
-      reader.onloadend = () => {
-        const audioBase64 = reader.result;
+      // Use setTimeout to let UI update before heavy encoding
+      setTimeout(() => {
+        try {
+          const wavBlob = encodeWAV(recordedSamples, 16000);
+          const reader = new FileReader();
+          reader.readAsDataURL(wavBlob);
+          reader.onloadend = () => {
+            const audioBase64 = reader.result;
 
-        recordings.unshift({
-          id: Date.now(),
-          date: new Date().toLocaleString(),
-          duration: elapsed,
-          name: `Recording ${recordings.length + 1}`,
-          audio: audioBase64,
-          transcript: currentTranscript || null,
-          weakWordsFound: currentWeakWordsFound || []
-        });
-        localStorage.setItem('sm_recordings', JSON.stringify(recordings));
-        renderRecordings();
-        updateProgress();
-        recordStatus.textContent = 'Saved!';
-        recordHint.textContent = 'Tap to record another';
-        recordingTimerEl.style.display = 'none';
-      };
+            // Check localStorage size limit (~5MB)
+            const testKey = '_sm_size_test_' + Date.now();
+            try {
+              localStorage.setItem(testKey, audioBase64);
+              localStorage.removeItem(testKey);
+            } catch (e) {
+              recordStatus.textContent = 'Recording too large';
+              recordHint.textContent = 'Try a shorter recording (under 2 min)';
+              recordingTimerEl.style.display = 'none';
+              return;
+            }
+
+            recordings.unshift({
+              id: Date.now(),
+              date: new Date().toLocaleString(),
+              duration: elapsed,
+              name: `Recording ${recordings.length + 1}`,
+              audio: audioBase64,
+              transcript: currentTranscript || null,
+              weakWordsFound: currentWeakWordsFound || []
+            });
+            localStorage.setItem('sm_recordings', JSON.stringify(recordings));
+            renderRecordings();
+            updateProgress();
+            recordStatus.textContent = 'Saved!';
+            recordHint.textContent = 'Tap to record another';
+            recordingTimerEl.style.display = 'none';
+          };
+        } catch (err) {
+          recordStatus.textContent = 'Save failed';
+          recordHint.textContent = 'Try again or record shorter';
+          recordingTimerEl.style.display = 'none';
+        }
+      }, 100);
     }
 
     let currentTranscript = '';
